@@ -72,7 +72,7 @@ export function MintForm() {
         "Content-Type": "multipart/form-data",
       },
     });
-    const ImgHash = `ipfs://${resFile.data.IpfsHash}`; //method to get the hashno stored in pinata
+    const ImgHash = `${resFile.data.IpfsHash}`; //method to get the hashno stored in pinata
     console.log(ImgHash);
     setImageHash(ImgHash);
 
