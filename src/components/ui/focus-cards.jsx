@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-export const Card = React.memo(({
+export const Card = (({
   card,
   index,
   hovered,
@@ -17,7 +17,7 @@ export const Card = React.memo(({
       "rounded-lg relative bg-gray-100 dark:bg-neutral-900 overflow-hidden h-60 md:h-96 w-full transition-all duration-300 ease-out border p-5",
       hovered !== null && hovered !== index && "blur-sm scale-[0.98]"
     )}>
-    <Image
+    <img
       src={card.src}
       alt={card.title}
       fill
@@ -41,6 +41,7 @@ export function FocusCards({
   cards
 }) {
   const [hovered, setHovered] = useState(null);
+  console.log("Cards: ", cards)
 
   return (
     (<motion.div

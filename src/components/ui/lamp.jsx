@@ -1,9 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-import { FocusCards } from "./focus-cards";
 import { getAddress, signTransaction } from "@stellar/freighter-api";
-import axios from "axios";
+import { motion } from "framer-motion";
 import {
   Address,
   BASE_FEE,
@@ -12,45 +10,36 @@ import {
   scValToNative,
   SorobanRpc,
   TransactionBuilder,
-  xdr,
 } from "stellar-sdk";
+import { FocusCards } from "./focus-cards";
+import {useState,useEffect} from 'react'
 
-export const CONTRACT_ID = "CAJTWAV32QMUBUURZFVTMPIA4SHG3LJQVS2ASFBFIEWU7XQORYW7LHKF";
+export const CONTRACT_ID =
+  "CAJTWAV32QMUBUURZFVTMPIA4SHG3LJQVS2ASFBFIEWU7XQORYW7LHKF";
 export const NETWORK_PASSPHRASE = Networks.TESTNET;
 export const SOROBAN_URL = "https://soroban-testnet.stellar.org:443";
 
-
 export const LampContainer = ({ children, className }) => {
-  const cards = [
-    {
-      title: "Forest Adventure",
-      src: "https://images.unsplash.com/photo-1518710843675-2540dd79065c?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Valley of life",
-      src: "https://images.unsplash.com/photo-1600271772470-bd22a42787b3?q=80&w=3072&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "behta hi jayega",
-      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=3070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Camping is for pros",
-      src: "https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "The road not taken",
-      src: "https://images.unsplash.com/photo-1507041957456-9c397ce39c97?q=80&w=3456&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "The First Rule",
-      src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=3070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Forest Adventure123",
-      src: "https://images.unsplash.com/photo-1518710843675-2540dd79065c?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ];
+  const [ownerAddress, setOwnerAddress] = useState(null);
+  const [imgHashes, setImgHashes] = useState([]);
+
+  useEffect(() => {
+    const retrievePublicKey = async () => {
+      try {
+        const addressObj = await getAddress();
+        if (addressObj.error) {
+          console.error("Error getting address:", addressObj.error);
+          return addressObj.error;
+        } else {
+          setOwnerAddress(addressObj.address);
+          return addressObj.address;
+        }
+      } catch (error) {
+        console.error("Error retrieving public key:", error);
+      }
+    };
+    retrievePublicKey();
+  }, []);
 
   const getImageHashes = async () => {
     try {
@@ -59,15 +48,15 @@ export const LampContainer = ({ children, className }) => {
         alert("Wallet not connected");
         return [];
       }
-  
+
       const server = new SorobanRpc.Server(SOROBAN_URL);
       const account = await server.getAccount(ownerAddress);
-  
+
       const contract = new Contract(CONTRACT_ID);
-  
+
       // Convert address to ScVal
       const addressScVal = new Address(ownerAddress).toScVal();
-  
+
       // Build the transaction to call the contract method
       const tx = new TransactionBuilder(account, {
         fee: BASE_FEE,
@@ -76,31 +65,34 @@ export const LampContainer = ({ children, className }) => {
         .addOperation(contract.call("get_image_hashes", addressScVal))
         .setTimeout(30)
         .build();
-  
+
       const preparedTx = await server.prepareTransaction(tx);
-  
-      const signedTransaction = await signTransaction(preparedTx.toEnvelope().toXDR("base64"), {
-        networkPassphrase: Networks.TESTNET,
-      });
-  
+
+      const signedTransaction = await signTransaction(
+        preparedTx.toEnvelope().toXDR("base64"),
+        {
+          networkPassphrase: Networks.TESTNET,
+        }
+      );
+
       const parsedTransaction = TransactionBuilder.fromXDR(
         signedTransaction.signedTxXdr,
         Networks.TESTNET
       );
-    
+
       const txResult = await server.sendTransaction(parsedTransaction);
-  
+
       if (!txResult || txResult.status !== "PENDING") {
         throw new Error(
           `Transaction failed with status: ${txResult?.status || "Unknown"}`
         );
       }
-  
+
       const hash = txResult.hash;
       let getResponse = await server.getTransaction(hash);
       let retryCount = 0;
       const maxRetries = 30;
-  
+
       while (getResponse.status === "NOT_FOUND" && retryCount < maxRetries) {
         console.log(
           `Waiting for transaction confirmation... Attempt ${retryCount + 1}`
@@ -109,67 +101,84 @@ export const LampContainer = ({ children, className }) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         retryCount++;
       }
-  
+
       if (retryCount >= maxRetries) {
         throw new Error("Transaction confirmation timed out");
       }
-  
+
       // Comprehensive error logging
       if (getResponse.status !== "SUCCESS") {
         console.error("Full transaction response:", {
           status: getResponse.status,
           resultXdr: getResponse.resultXdr,
-          diagnosticEvents: getResponse.diagnosticEvents
+          diagnosticEvents: getResponse.diagnosticEvents,
         });
-  
+
         throw new Error(`Transaction failed: ${getResponse.status}`);
       }
-  
+
       if (!getResponse.resultMetaXdr) {
         throw new Error("Empty resultMetaXDR in getTransaction response");
       }
-  
+
       const returnValue = getResponse.resultMetaXdr
         .v3()
         .sorobanMeta()
         ?.returnValue();
-  
+
       if (returnValue) {
         console.log("Return value:", returnValue);
-        
+
         // Convert ScVal to native JavaScript array of strings
         const imageHashes = scValToNative(returnValue);
-        
+
         // Optional: set to state if you want to display in UI
         // setImageHashes(imageHashes);
-        
+
         return imageHashes;
       }
-  
+
       return []; // Return empty array if no return value
     } catch (error) {
       console.error("Error getting image hashes:", {
         name: error.name,
         message: error.message,
         stack: error.stack,
-        errorObject: error
+        errorObject: error,
       });
-  
-      alert(`Error getting image hashes: ${error.message || "Unknown error occurred"}`);
+
+      alert(
+        `Error getting image hashes: ${
+          error.message || "Unknown error occurred"
+        }`
+      );
       return []; // Return empty array in case of error
     }
   };
-  
-  // Example usage
-  const fetchUserImageHashes = async () => {
-    try {
-      const hashes = await getImageHashes();
-      console.log("User's image hashes:", hashes);
-      // Do something with the hashes
-    } catch (error) {
-      console.error("Failed to fetch image hashes", error);
+
+  useEffect(() => {
+    const fetchUserImageHashes = async () => {
+      try {
+        const hashes = await getImageHashes();
+        console.log("User's image hashes:", hashes);
+        const cardData = hashes.map((hash, index) => ({
+          title: `NFT ${index}`,
+          src: `https://gateway.pinata.cloud/ipfs/${hash}`
+        }))
+        setImgHashes(cardData);
+        // Do something with the hashes
+      } catch (error) {
+        console.error("Failed to fetch image hashes", error);
+      }
+    };
+
+    if (ownerAddress) {
+      fetchUserImageHashes();
     }
-  };
+    
+  }, [ownerAddress]);
+
+  // Example usage
 
   return (
     <div
@@ -252,7 +261,7 @@ export const LampContainer = ({ children, className }) => {
       >
         Market Place
       </motion.div>
-      <FocusCards cards={cards} />
+      <FocusCards cards={imgHashes} />
     </div>
   );
 };

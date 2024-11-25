@@ -201,14 +201,14 @@ export function MintForm() {
     <div className="max-w-lg mx-10 rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black relative z-10 lg:py-10">
       <form className="">
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-          <LabelInputContainer>
+          {/* <LabelInputContainer>
             <Label htmlFor="firstname">NFT name</Label>
             <Input id="firstname" placeholder="CyberMonk" type="text" />
           </LabelInputContainer>
           <LabelInputContainer>
             <Label htmlFor="lastname">NFT symbol</Label>
             <Input id="lastname" placeholder="CMK" type="text" />
-          </LabelInputContainer>
+          </LabelInputContainer> */}
         </div>
         {/* <LabelInputContainer className="mb-4">
           <Label htmlFor="nftname">NFT Name</Label>
