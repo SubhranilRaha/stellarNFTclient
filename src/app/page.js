@@ -47,7 +47,7 @@ export default function Home() {
             <ConnectButton label="Connect Wallet" />
             <Link href="/explore">
               <button className="w-40 h-10 rounded-xl bg-white text-black border border-black  text-sm">
-                Explore NFTs →
+                Explore my NFTs →
               </button>
             </Link>
           </div>

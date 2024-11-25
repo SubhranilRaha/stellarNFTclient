@@ -259,7 +259,7 @@ export const LampContainer = ({ children, className }) => {
         }}
         className="bg-gradient-to-br from-slate-300 to-slate-500 bg-clip-text text-center text-6xl font-bold tracking-tight md:text-7xl lg:text-7xl absolute top-14"
       >
-        Market Place
+        Minted NFTs
       </motion.div>
       <FocusCards cards={imgHashes} />
     </div>
