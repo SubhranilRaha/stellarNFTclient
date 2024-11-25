@@ -12,7 +12,10 @@
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@stellar/freighter-api": "^3.0.0",
     "@tabler/icons-react": "^3.22.0",
+    "axios": "^1.7.7",
+    "bignumber.js": "^9.1.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.11.17",
@@ -22,6 +25,7 @@
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "react-dropzone": "^14.3.5",
+    "stellar-sdk": "^12.3.0",
     "tailwind-merge": "^2.5.4",
     "zod": "^3.23.8"
   },

@@ -57,7 +57,7 @@ export const TypewriterEffect = ({
   return (
     (<div
       className={cn(
-        "text-base sm:text-xl md:text-3xl lg:text-5xl font-bold text-center",
+        "text-3xl md:text-3xl lg:text-5xl font-bold text-center h-full pt-10 lg:pt-0",
         className
       )}>
       {renderWords()}
